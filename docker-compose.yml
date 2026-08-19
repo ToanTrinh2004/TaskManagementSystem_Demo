@@ -8,6 +8,10 @@ services:
     depends_on:
       - postgres
       - redis
+    volumes:
+      - ./app:/code/app
+      - ./alembic:/code/alembic
+      - ./alembic.ini:/code/alembic.ini
 
   postgres:
     image: postgres:16

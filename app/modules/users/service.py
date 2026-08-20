@@ -35,8 +35,8 @@ class UserService:
         user_data = await self.repo.get_by_email(email)
         if not user_data:
             raise ValueError("sai email hoac password")
-        check = pwd_context.verify(password, user.password)
+        check = pwd_context.verify(password, user_data.password)
         if check == False:
             raise ValueError("sai email hoac password")
-        token = create_access_token(user.id)
+        token = create_access_token(user_data.id)
         return {"access_token": token, "token_type": "bearer"}

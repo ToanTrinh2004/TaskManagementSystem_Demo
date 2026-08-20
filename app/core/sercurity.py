@@ -32,7 +32,7 @@ def create_refresh_token(user_id : str):
         algorithm=settings.ALGORITHM,
     )
 
-def decode_access_token(token: str) -> dict:
+def decode_token(token: str) -> dict:
     return jwt.decode(
         token,
         settings.SECRET_KEY,

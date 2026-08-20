@@ -3,7 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import uuid
 
 
-from app.core.sercurity import decode_access_token
+from app.core.sercurity import decode_token
 from app.db.session import get_db
 from app.modules.users.repository import UserRepository
 
@@ -13,7 +13,7 @@ bearer_scheme = HTTPBearer()
 async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme), db=Depends(get_db)):
     token = credentials.credentials
     try:
-        payload = decode_access_token(token)
+        payload = decode_token(token)
     except:
         raise HTTPException(status_code=401, detail="Invalid Token")
 

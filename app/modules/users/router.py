@@ -17,14 +17,14 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post("/", response_model=UserResponse)
-async def create_user(user_data: UserCreate, db: AsyncSession = Depends(get_db)):
-    service = UserService(db)
+async def create_user(user_data: UserCreate, db: AsyncSession = Depends(get_db),  redis_client=Depends(get_redis)):
+    service = UserService(db, redis_client)
     new_user = await service.create_user(user_data)
     return new_user
 
 @router.get("/{id}", response_model=UserResponse)
-async def get_user(id: uuid.UUID, db: AsyncSession = Depends(get_db)):
-    service = UserService(db)
+async def get_user(id: uuid.UUID, db: AsyncSession = Depends(get_db),  redis_client=Depends(get_redis)):
+    service = UserService(db, redis_client)
     user = await service.get_user(id)
     return user
     

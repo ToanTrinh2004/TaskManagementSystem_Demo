@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ALGORITHM: str
     ACCESS_TOKEN_EXPIRE : int
+    REFRESH_TOKEN_EXPIRE : int
 
     model_config = SettingsConfigDict(env_file=".env",extra="ignore")
 

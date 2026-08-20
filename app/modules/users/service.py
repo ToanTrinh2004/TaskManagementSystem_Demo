@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
 
 
-from app.core.sercurity import create_access_token
+from app.core.sercurity import create_access_token, create_refresh_token
 from app.modules.users.model import User
 from app.modules.users.repository import UserRepository
 from app.modules.users.schemas import UserCreate
@@ -38,5 +38,7 @@ class UserService:
         check = pwd_context.verify(password, user_data.password)
         if check == False:
             raise ValueError("sai email hoac password")
-        token = create_access_token(user_data.id)
-        return {"access_token": token, "token_type": "bearer"}
+        acess_token = create_access_token(str(user_data.id))
+        refresh_token = create_refresh_token(str(user_data.id))
+        return {"access_token": acess_token, "refresh_token" : refresh_token,"token_type": "bearer"}
+    

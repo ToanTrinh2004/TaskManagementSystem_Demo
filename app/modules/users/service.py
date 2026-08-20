@@ -42,7 +42,7 @@ class UserService:
         if not user_data:
             raise UnauthorizedError("Invalid email or password")
         
-        ## compare to hash_password in db 
+        ## hash and compare to password in db 
         check = pwd_context.verify(password, user_data.password)
         if check == False:
             raise UnauthorizedError("Invalid email or password")

@@ -6,7 +6,6 @@ from app.modules.workspace_members.model import WorkSpaceRole
 
 class MemberInvite(BaseModel):
     user_id : uuid.UUID
-    role : WorkSpaceRole = WorkSpaceRole.MEMBER
 
 class MemberResponse(BaseModel):
     id : uuid.UUID

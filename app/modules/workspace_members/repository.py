@@ -25,3 +25,7 @@ class WorkSpaceMemberRepository:
         query = select(WorkSpaceMember).where(WorkSpaceMember.workspace_id == workspace_id)
         result = await self.db.execute(query)
         return result.scalars().all()
+    
+    async def delete_member(self, member: WorkSpaceMember):
+        await self.db.delete(member)
+        await self.db.commit()

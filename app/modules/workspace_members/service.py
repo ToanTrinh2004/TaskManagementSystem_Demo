@@ -27,7 +27,7 @@ class WorkSpaceMemberService:
         member = WorkSpaceMember(
             workspace_id=workspace_id,
             user_id=data.user_id,
-            role=data.role,
+            role=WorkSpaceRole.MEMBER,
         )
         return await self.repo.create_member(member)
     

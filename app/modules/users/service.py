@@ -2,6 +2,7 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
 
+
 from app.core.sercurity import create_access_token
 from app.modules.users.model import User
 from app.modules.users.repository import UserRepository
@@ -21,7 +22,7 @@ class UserService:
             full_name=data.full_name,
             password=hashed_password,
         )
-        return await self.repo.create(user)
+        return await self.repo.create_user(user)
     
     async def get_user(self, user_id: uuid.UUID) -> User:
         user = await self.repo.get_by_id(user_id)

@@ -29,8 +29,8 @@ async def get_user(id: uuid.UUID, db: AsyncSession = Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     
-@router.post("login", response_model= LoginResponse)
-async def login(data = LoginRequest, db: AsyncSession = Depends(get_db)):
+@router.post("/login", response_model= LoginResponse)
+async def login(data : LoginRequest, db: AsyncSession = Depends(get_db)):
     service = UserService(db)
     try:
         result = await service.login(data.email,data.password)

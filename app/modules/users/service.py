@@ -2,6 +2,7 @@ import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
 
+from app.core.sercurity import create_access_token
 from app.modules.users.model import User
 from app.modules.users.repository import UserRepository
 from app.modules.users.schemas import UserCreate
@@ -27,3 +28,14 @@ class UserService:
         if not user:
             raise ValueError("User not found")
         return user
+    
+
+    async def login(self, email, password):
+        user_data = await self.repo.get_by_email(email)
+        if not user_data:
+            raise ValueError("sai email hoac password")
+        check = pwd_context.verify(password, user.password)
+        if check == False:
+            raise ValueError("sai email hoac password")
+        token = create_access_token(user.id)
+        return {"access_token": token, "token_type": "bearer"}

@@ -7,7 +7,7 @@ from app.modules.users.model import UserRole
 class UserCreate(BaseModel):
     email : EmailStr
     full_name : str = Field( min_length=1, max_length=50)
-    password : str = Field( min_length=8, max_length=50)
+    password : str = Field( min_length=8, max_length=100)
 
 class UserResponse(BaseModel):
     id : uuid.UUID
@@ -19,3 +19,11 @@ class UserResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+class LoginRequest(BaseModel):
+    email : EmailStr
+    password : str = Field( min_length=8, max_length=100)
+class LoginResponse(BaseModel):
+    access_token : str
+    token_type : str
+

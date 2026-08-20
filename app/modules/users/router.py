@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import uuid
 
 from app.db.session import get_db
-from app.modules.users.schemas import UserCreate, UserResponse
+from app.modules.users.schemas import LoginRequest, LoginResponse, UserCreate, UserResponse
 from app.modules.users.service import UserService
 
 
@@ -28,3 +28,12 @@ async def get_user(id: uuid.UUID, db: AsyncSession = Depends(get_db)):
         return user
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+    
+@router.post("login", response_model= LoginResponse)
+async def login(data = LoginRequest, db: AsyncSession = Depends(get_db)):
+    service = UserService(db)
+    try:
+        result = await service.login(data.email,data.password)
+        return result
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

@@ -29,6 +29,7 @@ class LoginResponse(BaseModel):
     token_type : str
 class RefreshTokenResponse(BaseModel):
     access_token : str
+    refresh_token : str
     token_type : str
 
 class RefreshRequest(BaseModel):

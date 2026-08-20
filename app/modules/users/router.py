@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 import uuid
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.core.dependencies import get_current_user
 from app.db.redis_client import get_redis
@@ -9,6 +11,8 @@ from app.modules.users.schemas import LoginRequest, LoginResponse, RefreshReques
 from app.modules.users.service import UserService
 
 
+
+bearer_scheme = HTTPBearer()
 router = APIRouter(prefix="/users", tags=["users"])
 
 
@@ -40,10 +44,11 @@ async def login(data : LoginRequest, db: AsyncSession = Depends(get_db), redis_c
         raise HTTPException(status_code=400, detail=str(e))
     
 @router.post("/refresh",response_model= RefreshTokenResponse)
-async def refresh(data: RefreshRequest, db: AsyncSession = Depends(get_db), redis_client=Depends(get_redis)):
+async def refresh(data: RefreshRequest, db: AsyncSession = Depends(get_db), redis_client=Depends(get_redis),credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)):
     service = UserService(db, redis_client)
+    access_token = credentials.credentials
     try:
-        result = await service.refresh(data.refresh_token)
+        result = await service.refresh(data.refresh_token,access_token)
         return result
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))

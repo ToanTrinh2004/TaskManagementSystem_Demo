@@ -1,5 +1,5 @@
 import uuid
-import redis
+import redis.asyncio as redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from passlib.context import CryptContext
 
@@ -57,7 +57,7 @@ class UserService:
                 "refresh_token" : refresh_token,
                 "token_type": "bearer"}
     
-    async def refresh(self,refresh_token):
+    async def refresh(self,refresh_token,access_token):
         payload = decode_token(refresh_token)
         
         ## check type of token
@@ -72,11 +72,19 @@ class UserService:
 
         if saved_token != refresh_token:
             raise ValueError("Refresh token không hợp lệ")
-        
-        ## create and return new access_token
-        access_token = create_access_token(user_id)
+        ## remove old refresh
+        await self.redis.delete(f"refresh_token:{user_id}")
+        ## create and return new access_token and refreshtoken
+        new_access_token = create_access_token(user_id)
+        new_refresh_token = create_refresh_token(user_id)
+        ## save new refresh token to redis
+        await self.redis.set(f"refresh_token:{user_id}", new_refresh_token, ex=60*60*24*7)
+        ## create blaclist for access_token
+        await self.redis.set(f"blacklist:{access_token}", "1", ex=60*30)
+       
         return {
-        "access_token": access_token,
+        "access_token": new_access_token,
+        "refresh_token" : new_refresh_token,
         "token_type": "bearer"}
     
     async def logout(self, user_id):

@@ -1,7 +1,7 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from app.core.exceptions import NotFoundError, UnauthorizedError, BadRequestError
+from app.core.exceptions import ConflictError, NotFoundError, UnauthorizedError, BadRequestError
 
 
 def register_error_handler(app):
@@ -19,6 +19,12 @@ def register_error_handler(app):
         return JSONResponse(status_code=400, content={"message": exc.msg})
 
     @app.exception_handler(Exception)
+    async def handle_conflict(request : Request, exc: ConflictError):
+        return JSONResponse(status_code= 409, content={"message": exc.msg})
+    
+    @app.exception_handler(Exception)
     async def handle_unknown(request: Request, exc: Exception):
         print("co loi:", exc)
         return JSONResponse(status_code=500, content={"message": "Internal Server"})
+    
+    

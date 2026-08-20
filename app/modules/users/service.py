@@ -17,7 +17,7 @@ class UserService:
         self.repo = UserRepository(db)
         self.redis = redis_client
 
-    async def create_user(self, data: UserCreate) -> User:
+    async def create_user(self, data: UserCreate):
         existing = await self.repo.get_by_email(data.email)
         if existing:
             raise BadRequestError("Email already exits")
@@ -29,7 +29,7 @@ class UserService:
         )
         return await self.repo.create_user(user)
     
-    async def get_user(self, user_id: uuid.UUID) -> User:
+    async def get_user(self, user_id: uuid.UUID) :
         user = await self.repo.get_by_id(user_id)
         if not user:
             raise NotFoundError("User not found")

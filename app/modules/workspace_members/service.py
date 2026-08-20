@@ -30,3 +30,7 @@ class WorkSpaceMemberService:
             role=data.role,
         )
         return await self.repo.create_member(member)
+    
+
+    async def list_members(self, workspace_id: uuid.UUID):
+        return await self.repo.list_members(workspace_id)

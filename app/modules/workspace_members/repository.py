@@ -20,3 +20,8 @@ class WorkSpaceMemberRepository:
         )
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
+    
+    async def list_members(self, workspace_id: uuid.UUID):
+        query = select(WorkSpaceMember).where(WorkSpaceMember.workspace_id == workspace_id)
+        result = await self.db.execute(query)
+        return result.scalars().all()

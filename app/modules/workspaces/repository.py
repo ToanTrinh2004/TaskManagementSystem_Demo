@@ -10,10 +10,12 @@ class WorkSpaceRepository:
         await self.db.commit()
         await self.db.refresh(workspace)
         return workspace
+    
     async def get_workspace_by_owner(self,user_id : uuid.UUID):
         query = select(WorkSpace).where(WorkSpace.owner_id == user_id)
         result = await self.db.execute(query)
-        return result.scalar_one_or_none()
+        return result.scalars().all()
+    
     async def get_workspace_by_id(self, id:uuid.UUID):
         query = select(WorkSpace).where(WorkSpace.id == id)
         result = await self.db.execute(query)

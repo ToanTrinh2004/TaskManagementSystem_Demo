@@ -17,3 +17,7 @@ class WorkSpaceResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class WorkSpaceUpdate(BaseModel):
+    name: str | None = None
+    description: str | None = None

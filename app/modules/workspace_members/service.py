@@ -34,3 +34,19 @@ class WorkSpaceMemberService:
 
     async def list_members(self, workspace_id: uuid.UUID):
         return await self.repo.list_members(workspace_id)
+    
+
+    async def remove_member(self, workspace_id: uuid.UUID, user_id: uuid.UUID, requester_id: uuid.UUID):
+        workspace = await self.workspace_repo.get_workspace_by_id(workspace_id)
+        if not workspace:
+            raise NotFoundError("Workspace not found")
+
+        if workspace.owner_id != requester_id:
+            raise UnauthorizedError("You have no rights")
+
+        member = await self.repo.get_member(workspace_id, user_id)
+        if not member:
+            raise NotFoundError("Member not found")
+
+        await self.repo.delete_member(member)
+        return {"message": "Deleted successfully"}

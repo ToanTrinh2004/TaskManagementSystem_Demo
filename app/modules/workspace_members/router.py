@@ -21,3 +21,10 @@ async def list_members(workspace_id: uuid.UUID,db: AsyncSession = Depends(get_db
     service = WorkSpaceMemberService(db)
     members = await service.list_members(workspace_id)
     return members
+
+
+@router.delete("/{workspace_id}/members/{user_id}")
+async def remove_member(workspace_id: uuid.UUID, user_id: uuid.UUID,db: AsyncSession = Depends(get_db),current_user=Depends(get_current_user)):
+    service = WorkSpaceMemberService(db)
+    result = await service.remove_member(workspace_id, user_id, current_user.id)
+    return result

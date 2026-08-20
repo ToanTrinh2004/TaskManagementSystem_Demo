@@ -1,0 +1,22 @@
+import uuid
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.modules.workspace_members.model import WorkSpaceMember
+
+class WorkSpaceMemberRepository:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def create_member(self, member: WorkSpaceMember):
+        self.db.add(member)
+        await self.db.commit()
+        await self.db.refresh(member)
+        return member
+
+    async def get_member(self, workspace_id: uuid.UUID, user_id: uuid.UUID):
+        query = select(WorkSpaceMember).where(
+            WorkSpaceMember.workspace_id == workspace_id,
+            WorkSpaceMember.user_id == user_id,
+        )
+        result = await self.db.execute(query)
+        return result.scalar_one_or_none()

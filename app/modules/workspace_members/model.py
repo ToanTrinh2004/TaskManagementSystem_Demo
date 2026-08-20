@@ -9,6 +9,7 @@ from app.db.session import Base
 
 class WorkSpaceRole(str, PyEnum):
     OWNER = "owner"
+    MANAGER = "manager"
     MEMBER = "member"
 
 

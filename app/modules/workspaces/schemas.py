@@ -1,15 +1,14 @@
 from datetime import datetime
 import uuid
 
-from pydantic import Field
-
-from app.db.session import Base
+from pydantic import BaseModel, Field
 
 
-class WorkSpaceCreate(Base):
+
+class WorkSpaceCreate(BaseModel):
     name : str = Field( min_length=1, max_length=50)
     description : str = Field( min_length=1, max_length=200)
-class WorkSpaceResponse:
+class WorkSpaceResponse(BaseModel):
     id : uuid.UUID
     name : str
     description : str
@@ -17,4 +16,4 @@ class WorkSpaceResponse:
     updated_at : datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True

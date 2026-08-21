@@ -7,6 +7,5 @@ class ProjectRepository:
     
     async def create_project(self, project):
         self.db.add(project)
-        await self.db.commit()
-        await self.db.refresh(project)
+        await self.db.flush()
         return project

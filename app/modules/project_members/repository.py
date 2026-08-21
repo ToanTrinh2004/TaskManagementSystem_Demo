@@ -1,3 +1,6 @@
+from app.modules.project_members.model import ProjectMember
+from sqlalchemy.ext.asyncio import AsyncSession
+
 class ProjectMemberRepository:
     def __init__(self, db: AsyncSession):
         self.db = db

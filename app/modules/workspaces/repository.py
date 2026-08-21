@@ -7,8 +7,8 @@ class WorkSpaceRepository:
         self.db = db
     async def create_workspace(self,workspace : WorkSpace):
         self.db.add(workspace)
-        await self.db.commit()
-        await self.db.refresh(workspace)
+        ## insert workspace into db not commit yet
+        await self.db.flush()
         return workspace
     
     async def get_workspace_by_owner(self,user_id : uuid.UUID):

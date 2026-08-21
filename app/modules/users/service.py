@@ -38,21 +38,20 @@ class UserService:
     
 
     async def login(self, email, password):
-        ## check user exist by email
+
         user_data = await self.repo.get_by_email(email)
         if not user_data:
             raise UnauthorizedError("Invalid email or password")
         
-        ## hash and compare to password in db 
+     
         check = pwd_context.verify(password, user_data.password)
         if check == False:
             raise UnauthorizedError("Invalid email or password")
         
-        ## generate access_token and refresh_token
         acess_token = create_access_token(str(user_data.id))
         refresh_token = create_refresh_token(str(user_data.id))
         
-        ## saved refresh token in redis using set { user_id : refresh_token} in order to manage session
+        
         await self.redis.set(f"refresh_token:{user_data.id}", refresh_token, ex=60*60*24*int(settings.REFRESH_TOKEN_EXPIRE))
         
         return {"access_token": acess_token, 
@@ -62,25 +61,25 @@ class UserService:
     async def refresh(self,refresh_token,access_token):
         payload = decode_token(refresh_token)
         
-        ## check type of token
+        
         if payload.get("type") != "refresh":
             raise UnauthorizedError("Refresh token không hợp lệ")
         
         user_id = payload.get("sub")
        
-        ## get refresh_token was stored in redis 
+       
         saved_token = await self.redis.get(f"refresh_token:{user_id}")
 
         if saved_token != refresh_token:
             raise UnauthorizedError("Refresh token không hợp lệ")
-        ## remove old refresh
+       
         await self.redis.delete(f"refresh_token:{user_id}")
-        ## create and return new access_token and refreshtoken
+       
         new_access_token = create_access_token(user_id)
         new_refresh_token = create_refresh_token(user_id)
-        ## save new refresh token to redis
+       
         await self.redis.set(f"refresh_token:{user_id}", new_refresh_token, ex=60*60*24*int(settings.REFRESH_TOKEN_EXPIRE))
-        ## create blaclist for access_token
+       
         await self.redis.set(f"blacklist:{access_token}", "1", ex=60*int(settings.ACCESS_TOKEN_EXPIRE))
        
         return {
@@ -89,5 +88,5 @@ class UserService:
         "token_type": "bearer"}
     
     async def logout(self, user_id):
-        ## remove refresh token from redis to revoke the session
+        \
         await self.redis.delete(f"refresh_token:{user_id}")

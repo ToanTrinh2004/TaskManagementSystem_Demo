@@ -32,3 +32,11 @@ class TaskResponse(BaseModel):
     updated_at: datetime
 
     model_config = {"from_attributes": True}
+
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    priority: Optional[TaskPriority] = None
+    assignee_id: Optional[uuid.UUID] = None
+    due_date: Optional[datetime] = None

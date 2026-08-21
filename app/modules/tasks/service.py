@@ -10,7 +10,7 @@ from app.modules.project_members.repository import ProjectMemberRepository
 from app.modules.projects.repository import ProjectRepository
 from app.modules.tasks.model import TaskStatus
 from app.modules.tasks.repository import TaskRepository
-from app.modules.tasks.schemas import TaskCreate
+from app.modules.tasks.schemas import TaskCreate, TaskUpdate
 from app.core.config import settings
 
 
@@ -33,6 +33,20 @@ class TaskService:
         if not member:
             raise ForbiddenError("You are not a member of this project")
         return member
+    
+    async def __check_exits_task(self, task_id: uuid.UUID):
+        task = await self.repo.get_task_by_id(task_id)
+        if not task:
+            raise NotFoundError("Task not found")
+        return task
+    
+    async def __clear_task_cache(self, project_id: uuid.UUID):
+    
+        pattern = f"tasks_cache:{project_id}:*"
+        
+        async for key in self.redis.scan_iter(match=pattern):
+            await self.redis.delete(key)
+
 
 ## main func
     async def create_task(self, project_id: uuid.UUID, data: TaskCreate, user_id: uuid.UUID):
@@ -129,5 +143,34 @@ class TaskService:
             await self.redis.set(cache_key, json.dumps(result), ex=settings.TASK_CACHE_TTL)
 
         return result
+    
+    async def get_task_by_id(self, task_id: uuid.UUID):
+        return await self.__check_exits_task(task_id)
+    
+
+    async def update_task(self, task_id: uuid.UUID, data:TaskUpdate, user_id:uuid.UUID):
+        task = await self.__check_exits_task(task_id)
+        await self.__check_is_project_member(task.project_id, user_id)
+
+        if data.title is not None:
+            task.title = data.title
+        if data.description is not None:
+            task.description = data.description
+        if data.priority is not None:
+            task.priority = data.priority
+        if data.assignee_id is not None:
+            ## check is new member receive task is project member
+            await self.__check_is_project_member(task.project_id, data.assignee_id)
+            task.assignee_id = data.assignee_id
+            task.assigned_by = user_id
+        if data.due_date is not None:
+            task.due_date = data.due_date
+
+        updated = await self.repo.update_task(task)
+
+        self.__clear_task_cache(task.project_id)
+        
+
+        return updated
 
 

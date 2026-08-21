@@ -18,6 +18,12 @@ class ProjectService:
         self.workspace_repo = WorkSpaceRepository(db)
         self.workspace_member_repo = WorkSpaceMemberRepository(db)
         self.db = db 
+
+    async def __check_exits_project(self,project_id:uuid.UUID):
+        project =  await self.repo.get_project_by_id(project_id)
+        if not project:
+            raise NotFoundError("Project not found")
+        return project
     
     async def create_project(self, data: ProjectCreate, user_id: uuid.UUID):
         ## workspace must exist
@@ -25,7 +31,7 @@ class ProjectService:
         if not workspace:
             raise NotFoundError("Workspace not found")
         ## user must be a member of the workspace
-        member = await self.workspace_member_repo.get_member_by_id(user_id,data.workspace_id)
+        member = await self.workspace_member_repo.get_member(data.workspace_id,user_id)
         print("member",member)
         print("user_id",user_id)
         print("workspace_id",data.workspace_id)
@@ -55,15 +61,11 @@ class ProjectService:
         return result
     
     async def get_project_by_id(self,project_id: uuid.UUID):
-        project =  await self.repo.get_project_by_id(project_id)
-        if not project:
-            raise NotFoundError("Project not found")
+        project = await self.__check_exits_project(project_id)
         return project
     
     async def update_project(self,project_id,data:ProjectUpdate,user_id : uuid.UUID):
-        project =  await self.repo.get_project_by_id(project_id)
-        if not project:
-            raise NotFoundError("Project not found")
+        project = await self.__check_exits_project(project_id)
         if project.owner_id != user_id:
             raise ForbiddenError("You have no rights")
         if data.name is not None:
@@ -74,9 +76,7 @@ class ProjectService:
         return  project
     
     async def delete_project(self,project_id: uuid.UUID, user_id: uuid.UUID):
-        project =  await self.repo.get_project_by_id(project_id)
-        if not project:
-            raise NotFoundError("Project not found")
+        project =  await self.__check_exits_project(project_id)
         await self.repo.delete_project(project)
         return{"message": "Deleted successfully"}
         

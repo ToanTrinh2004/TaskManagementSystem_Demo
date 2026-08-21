@@ -73,9 +73,10 @@ class WorkSpaceMemberService:
         member = await self.repo.get_member(workspace_id,user_id)
         if not member:
             raise NotFoundError("Member not found")
-
-        member.role = data.role
+        member.role = WorkSpaceRole(data.role)
         await self.repo.update_member(member)
+        await self.db.commit()
+        await self.db.refresh(member)
         return member
 
 

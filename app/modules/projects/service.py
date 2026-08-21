@@ -35,6 +35,7 @@ class ProjectService:
             name=data.name,
             description=data.description,
             workspace_id=data.workspace_id,
+            owner_id = user_id
         )
         result = await self.repo.create_project(project)
 
@@ -47,4 +48,5 @@ class ProjectService:
         await self.project_member_repo.create_member(leader)
 
         await self.repo.commit()
+        await self.repo.refresh(result)
         return result

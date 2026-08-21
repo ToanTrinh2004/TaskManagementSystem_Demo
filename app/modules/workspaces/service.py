@@ -2,7 +2,7 @@ import uuid
 import redis.asyncio as redis
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import ConflictError, NotFoundError, UnauthorizedError
-from app.modules.workspace_members.model import WorkSpaceMember
+from app.modules.workspace_members.model import WorkSpaceMember, WorkSpaceRole
 from app.modules.workspace_members.repository import WorkSpaceMemberRepository
 from app.modules.workspaces.repository import WorkSpaceRepository
 from app.modules.workspaces.schemas import WorkSpaceCreate, WorkSpaceUpdate
@@ -27,7 +27,7 @@ class WorkSpaceService:
         owner = WorkSpaceMember(
             workspace_id=workspace.id,
             user_id=user_id,
-            role="owner",)
+            role=WorkSpaceRole.OWNER,)
         
         await self.member_repo.create_member(owner)
 

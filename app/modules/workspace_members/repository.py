@@ -9,8 +9,7 @@ class WorkSpaceMemberRepository:
 
     async def create_member(self, member: WorkSpaceMember):
         self.db.add(member)
-        await self.db.commit()
-        await self.db.refresh(member)
+        await self.db.flush()
         return member
 
     async def get_member(self, workspace_id: uuid.UUID, user_id: uuid.UUID):

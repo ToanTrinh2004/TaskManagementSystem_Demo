@@ -6,7 +6,7 @@ from app.core.dependencies import get_current_user
 from app.modules.workspace_members.schemas import MemberInvite,MemberResponse
 from app.modules.workspace_members.service import WorkSpaceMemberService
 
-router = APIRouter(prefix="/workspaces", tags=["workspace_members"])
+router = APIRouter(prefix="/workspace_members", tags=["workspace_members"])
 
 
 @router.post("/{workspace_id}/members", response_model=MemberResponse)

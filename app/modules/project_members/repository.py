@@ -22,3 +22,9 @@ class ProjectMemberRepository:
         query = select(ProjectMember).where(ProjectMember.user_id == user_id,ProjectMember.project_id == project_id)
         result  =  await self.db.execute(query)
         return result.scalars().one_or_none()
+    
+    async def delete_member(self, member: ProjectMember):
+        await self.db.delete(member)
+        await self.db.commit()
+    
+    

@@ -7,7 +7,6 @@ from app.modules.project_members.model import ProjectRole
 
 
 class ProjectMemberInvite(BaseModel):
-    project_id : uuid.UUID
     member_id:uuid.UUID  
 class ProjectMemberResponse(BaseModel):
     id: uuid.UUID

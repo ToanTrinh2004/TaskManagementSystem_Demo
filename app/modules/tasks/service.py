@@ -4,13 +4,13 @@ from typing import Optional
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
 import redis
-from app.core.exceptions import ForbiddenError, NotFoundError
+from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.modules.project_members.model import ProjectRole
 from app.modules.project_members.repository import ProjectMemberRepository
 from app.modules.projects.repository import ProjectRepository
 from app.modules.tasks.model import TaskStatus
 from app.modules.tasks.repository import TaskRepository
-from app.modules.tasks.schemas import TaskCreate, TaskUpdate
+from app.modules.tasks.schemas import TaskCreate, TaskStatusUpdate, TaskUpdate
 from app.core.config import settings
 
 
@@ -172,5 +172,17 @@ class TaskService:
         
 
         return updated
+    
+    async def update_status(self,task_id: uuid.UUID, data: TaskStatusUpdate, user_id: uuid.UUID):
+        task = await self.__check_exits_task(task_id)
 
+        await self.__check_is_project_member(task.project_id, user_id)
+
+        if task.status == data.status:
+            raise BadRequestError("Task already in this status")
+
+        task.status = data.status
+        await self.repo.update_task(task)
+        await self.__clear_task_cache(task.project_id)
+        return task
 

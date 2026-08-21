@@ -40,3 +40,6 @@ class TaskUpdate(BaseModel):
     priority: Optional[TaskPriority] = None
     assignee_id: Optional[uuid.UUID] = None
     due_date: Optional[datetime] = None
+
+class TaskStatusUpdate(BaseModel):
+    status: TaskStatus

@@ -17,16 +17,24 @@ class TaskService:
         self.project_repo = ProjectRepository(db)
         self.project_member_repo =ProjectMemberRepository(db)
 
-
-    async def create_task(self, project_id: uuid.UUID, data: TaskCreate, user_id: uuid.UUID):
+    async def __check_exits_project(self, project_id: uuid.UUID):
         project = await self.project_repo.get_project_by_id(project_id)
         if not project:
             raise NotFoundError("Project not found")
+        return project
+    
+    async def __check_is_project_member(self, project_id: uuid.UUID, user_id: uuid.UUID):
         member = await self.project_member_repo.get_project_member_by_id(user_id, project_id)
         if not member:
             raise ForbiddenError("You are not a member of this project")
+        return member
+
+
+    async def create_task(self, project_id: uuid.UUID, data: TaskCreate, user_id: uuid.UUID):
+        await self.__check_exits_project(project_id)
+        member = await self.__check_is_project_member(project_id, user_id)
         if member.role == ProjectRole.MEMBER:
-            raise 
+            raise ForbiddenError("You have no rights")
 
         new_task = Task(
             title=data.title ,
@@ -57,9 +65,7 @@ class TaskService:
         order: str = "desc",
     ):
 
-        project = await self.project_repo.get_project_by_id(project_id)
-        if not project:
-            raise NotFoundError("Project not found")
+        await self.__check_exits_project(project_id)
 
         items, total = await self.repo.list_tasks(
             project_id=project_id,

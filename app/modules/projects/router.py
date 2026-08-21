@@ -1,8 +1,9 @@
+import uuid
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.dependencies import get_current_user
 from app.db.session import get_db
-from app.modules.projects.schemas import ProjectCreate, ProjectResponse
+from app.modules.projects.schemas import ProjectCreate, ProjectResponse, ProjectUpdate
 from app.modules.projects.service import ProjectService
 
 
@@ -16,7 +17,20 @@ async def create_project(data: ProjectCreate,db: AsyncSession = Depends(get_db),
     return new_workspace
 
 @router.get("/{project_id}", response_model=ProjectResponse)
-async def get_project(project_id: str, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
+async def get_project(project_id: str, db: AsyncSession = Depends(get_db)):
     service = ProjectService(db)
-    project = await service.get_project_by_id(project_id,current_user.id)
+    project = await service.get_project_by_id(project_id)
     return project
+
+@router.patch("/{project_id}", response_model=ProjectResponse)
+async def update_project(project_id: uuid.UUID,data: ProjectUpdate, db: AsyncSession = Depends(get_db),current_user=Depends(get_current_user)):
+    service = ProjectService(db)
+    data.project_id = project_id
+    project = await service.update_project(data,current_user.id,)
+    return project
+
+@router.delete("/{project_id}")
+async def delete_project(project_id: uuid.UUID,db: AsyncSession = Depends(get_db),current_user=Depends(get_current_user),):
+    service = ProjectService(db)
+    result = await service.delete_project(project_id,current_user.id,)
+    return result

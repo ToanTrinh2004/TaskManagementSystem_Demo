@@ -5,7 +5,7 @@ from app.modules.project_members.model import ProjectMember, ProjectRole
 from app.modules.project_members.repository import ProjectMemberRepository
 from app.modules.projects.model import Project
 from app.modules.projects.repository import ProjectRepository
-from app.modules.projects.schemas import ProjectCreate
+from app.modules.projects.schemas import ProjectCreate, ProjectUpdate
 from app.modules.workspace_members.model import WorkSpaceRole
 from app.modules.workspace_members.repository import WorkSpaceMemberRepository
 from app.modules.workspaces.repository import WorkSpaceRepository
@@ -54,9 +54,30 @@ class ProjectService:
         await self.db.refresh(result)
         return result
     
-    async def get_project_by_id(self,project_id: uuid.UUID,  user_id:uuid.UUID):
+    async def get_project_by_id(self,project_id: uuid.UUID):
         project =  await self.repo.get_project_by_id(project_id)
         if not project:
             raise NotFoundError("Project not found")
         return project
+    
+    async def update_project(self,project_id,data:ProjectUpdate,user_id : uuid.UUID):
+        project =  await self.repo.get_project_by_id(project_id)
+        if not project:
+            raise NotFoundError("Project not found")
+        if project.owner_id != user_id:
+            raise ForbiddenError("You have no rights")
+        if data.name is not None:
+            project.name = data.name
+        if data.description is not None:
+            project.description = data.description
+        await self.repo.update_project(project)
+        return  project
+    
+    async def delete_project(self,project_id: uuid.UUID, user_id: uuid.UUID):
+        project =  await self.repo.get_project_by_id(project_id)
+        if not project:
+            raise NotFoundError("Project not found")
+        await self.repo.delete_project(project)
+        return{"message": "Deleted successfully"}
+        
         

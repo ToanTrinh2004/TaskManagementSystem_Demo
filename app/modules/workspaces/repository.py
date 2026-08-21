@@ -28,9 +28,11 @@ class WorkSpaceRepository:
         return result.scalars().all()
     
     async def update_workspace(self, workspace: WorkSpace):
+        await self.db.add(workspace)
         await self.db.commit()
         await self.db.refresh(workspace)
         return workspace
+    
     async def delete(self, workspace):
         await self.db.delete(workspace)
         await self.db.commit()

@@ -35,6 +35,7 @@ class WorkSpaceMemberRepository:
         await self.db.commit()
 
     async def update_member(self, member: WorkSpaceMember):
+        await self.db.add(member)
         await self.db.commit()
         await self.db.refresh(member)
         return member

@@ -1,6 +1,9 @@
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.events import publish_event
 from app.core.exceptions import ForbiddenError, NotFoundError
+import redis.asyncio as redis
+from app.modules.log_activity.model import ActivityAction
 from app.modules.project_members.model import ProjectMember, ProjectRole
 from app.modules.project_members.repository import ProjectMemberRepository
 from app.modules.projects.model import Project
@@ -11,13 +14,15 @@ from app.modules.workspace_members.repository import WorkSpaceMemberRepository
 from app.modules.workspaces.repository import WorkSpaceRepository
 
 
+
 class ProjectService:
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSession, redis_client: redis.Redis):
         self.repo =ProjectRepository(db)
         self.project_member_repo = ProjectMemberRepository(db)
         self.workspace_repo = WorkSpaceRepository(db)
         self.workspace_member_repo = WorkSpaceMemberRepository(db)
         self.db = db 
+        self.redis = redis_client
 
     async def __check_exits_project(self,project_id:uuid.UUID):
         project =  await self.repo.get_project_by_id(project_id)
@@ -47,7 +52,8 @@ class ProjectService:
             owner_id = user_id
         )
         result = await self.repo.create_project(project)
-
+        project_id = result.id
+        print(user_id)
         leader = ProjectMember(
             project_id=result.id,
             user_id=user_id,
@@ -58,6 +64,15 @@ class ProjectService:
 
         await self.db.commit()
         await self.db.refresh(result)
+        await publish_event(
+            self.redis,
+            event_name=ActivityAction.PROJECT_CREATED,
+            payload={
+                "user_id": str(user_id),
+                "project_id": str(project_id),   # dùng biến đã lưu, không đọc lại result.id
+                "target_id": str(project_id),
+    },
+)
         return result
     
     async def get_project_by_id(self,project_id: uuid.UUID):

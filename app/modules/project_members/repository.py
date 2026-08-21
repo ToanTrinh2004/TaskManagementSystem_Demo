@@ -9,7 +9,7 @@ class ProjectMemberRepository:
         self.db = db
 
     async def create_member(self, member: ProjectMember):
-        await self.db.add(member)
+        self.db.add(member)
         await self.db.flush()
         return member
     

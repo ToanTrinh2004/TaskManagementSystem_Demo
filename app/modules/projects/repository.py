@@ -10,7 +10,7 @@ class ProjectRepository:
         self.db = db
     
     async def create_project(self, project):
-        await self.db.add(project)
+        self.db.add(project)
         await self.db.flush()
         return project
     
@@ -20,7 +20,7 @@ class ProjectRepository:
         return result.scalar_one_or_none()
     
     async def update_project(self,project:Project):
-        await self.db.add(project)
+        self.db.add(project)
         await self.db.commit()
         await self.db.refresh(project)
         return project

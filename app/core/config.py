@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE : int
     REFRESH_TOKEN_EXPIRE : int
     TASK_CACHE_TTL : int
+    ACTIVITY_CHANNEL :str
 
 
     model_config = SettingsConfigDict(env_file=".env",extra="ignore")

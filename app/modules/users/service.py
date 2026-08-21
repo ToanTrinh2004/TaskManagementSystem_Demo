@@ -9,6 +9,7 @@ from app.core.exceptions import NotFoundError, UnauthorizedError, BadRequestErro
 from app.modules.users.model import User
 from app.modules.users.repository import UserRepository
 from app.modules.users.schemas import UserCreate
+from app.core.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -52,7 +53,7 @@ class UserService:
         refresh_token = create_refresh_token(str(user_data.id))
         
         ## saved refresh token in redis using set { user_id : refresh_token} in order to manage session
-        await self.redis.set(f"refresh_token:{user_data.id}", refresh_token, ex=60*60*24*7)
+        await self.redis.set(f"refresh_token:{user_data.id}", refresh_token, ex=60*60*24*int(settings.REFRESH_TOKEN_EXPIRE))
         
         return {"access_token": acess_token, 
                 "refresh_token" : refresh_token,
@@ -78,9 +79,9 @@ class UserService:
         new_access_token = create_access_token(user_id)
         new_refresh_token = create_refresh_token(user_id)
         ## save new refresh token to redis
-        await self.redis.set(f"refresh_token:{user_id}", new_refresh_token, ex=60*60*24*7)
+        await self.redis.set(f"refresh_token:{user_id}", new_refresh_token, ex=60*60*24*int(settings.REFRESH_TOKEN_EXPIRE))
         ## create blaclist for access_token
-        await self.redis.set(f"blacklist:{access_token}", "1", ex=60*30)
+        await self.redis.set(f"blacklist:{access_token}", "1", ex=60*int(settings.ACCESS_TOKEN_EXPIRE))
        
         return {
         "access_token": new_access_token,

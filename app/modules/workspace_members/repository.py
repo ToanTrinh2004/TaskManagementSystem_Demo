@@ -20,8 +20,8 @@ class WorkSpaceMemberRepository:
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
     
-    async def list_members(self, workspace_id: uuid.UUID):
-        query = select(WorkSpaceMember).where(WorkSpaceMember.workspace_id == workspace_id)
+    async def list_members(self, workspace_id: uuid.UUID,page: int = 1,page_size: int = 20):
+        query = select(WorkSpaceMember).where(WorkSpaceMember.workspace_id == workspace_id).offset((page - 1) * page_size).limit(page_size)
         result = await self.db.execute(query)
         return result.scalars().all()
     

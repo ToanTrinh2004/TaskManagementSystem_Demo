@@ -54,9 +54,9 @@ async def invite_member(workspace_id : uuid.UUID,data : MemberInvite,db: AsyncSe
 
 
 @router.get("/{workspace_id}/members", response_model=list[MemberResponse])
-async def list_members(workspace_id: uuid.UUID,db: AsyncSession = Depends(get_db)):
+async def list_members(workspace_id: uuid.UUID,page: int = 1, page_size: int = 20,db: AsyncSession = Depends(get_db)):
     service = WorkSpaceMemberService(db)
-    members = await service.list_members(workspace_id)
+    members = await service.list_members(workspace_id,page,page_size)
     return members
 
 @router.patch("/{workspace_id}/members/{user_id}")

@@ -35,11 +35,11 @@ class WorkSpaceMemberService:
         return member
     
 
-    async def list_members(self, workspace_id: uuid.UUID):
+    async def list_members(self, workspace_id: uuid.UUID,page: int = 1,page_size: int = 20,):
         workspace = await self.workspace_repo.get_workspace_by_id(workspace_id)
         if not workspace:
             raise NotFoundError("Workspace not found")
-        return await self.repo.list_members(workspace_id)
+        return await self.repo.list_members(workspace_id,page,page_size)
     
 
     async def remove_member(self, workspace_id: uuid.UUID, user_id: uuid.UUID, owner_id: uuid.UUID):

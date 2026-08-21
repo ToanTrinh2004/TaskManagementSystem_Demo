@@ -11,7 +11,6 @@ class WorkSpaceMemberService:
     def __init__(self, db: AsyncSession):
         self.repo = WorkSpaceMemberRepository(db)
         self.workspace_repo = WorkSpaceRepository(db)
-        self.db = db
 
     async def invite_member(self, workspace_id: uuid.UUID,data: MemberInvite, owner_id: uuid.UUID):
         workspace = await self.workspace_repo.get_workspace_by_id(workspace_id)
@@ -61,7 +60,7 @@ class WorkSpaceMemberService:
         await self.repo.delete_member(member)
         return {"message": "Deleted successfully"}
 
-    async def update_member_role(self,workspace_id: uuid.UUID, user_id: uuid.UUID,data: MemberRoleUpdate, owner_id: uuid.UUID):
+    async def update_member_role(self, workspace_id: uuid.UUID, user_id: uuid.UUID, data: MemberRoleUpdate, owner_id: uuid.UUID):
 
         workspace = await self.workspace_repo.get_workspace_by_id(workspace_id)
         if not workspace:
@@ -74,9 +73,7 @@ class WorkSpaceMemberService:
         if not member:
             raise NotFoundError("Member not found")
         member.role = WorkSpaceRole(data.role)
-        await self.repo.update_member(member)
-        await self.db.commit()
-        await self.db.refresh(member)
-        return member
+        result  = await self.repo.update_member(member)
+        return result
 
 

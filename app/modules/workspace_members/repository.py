@@ -35,11 +35,12 @@ class WorkSpaceMemberRepository:
         await self.db.commit()
 
     async def update_member(self, member: WorkSpaceMember):
-        await self.db.flush()
+        await self.db.commit()
+        await self.db.refresh(member)
         return member
     
 
     async def get_member_by_id(self, member_id: uuid.UUID, workspace_id: uuid.UUID):
-        query = select(WorkSpaceMember).where(WorkSpaceMember.id == member_id, WorkSpaceMember.workspace_id == workspace_id)
+        query = select(WorkSpaceMember).where(WorkSpaceMember.user_id == member_id, WorkSpaceMember.workspace_id == workspace_id)
         result = await self.db.execute(query)
         return result.scalar_one_or_none()

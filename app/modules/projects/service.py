@@ -26,6 +26,9 @@ class ProjectService:
             raise NotFoundError("Workspace not found")
         ## user must be a member of the workspace
         member = await self.workspace_member_repo.get_member_by_id(user_id,data.workspace_id)
+        print("member",member)
+        print("user_id",user_id)
+        print("workspace_id",data.workspace_id)
         if not member:
             raise ForbiddenError("User is not a member of the workspace")
         ## user must be a manager of the workspace or owner
@@ -47,6 +50,6 @@ class ProjectService:
 
         await self.project_member_repo.create_member(leader)
 
-        await self.repo.commit()
-        await self.repo.refresh(result)
+        await self.db.commit()
+        await self.db.refresh(result)
         return result

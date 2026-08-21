@@ -23,9 +23,9 @@ async def list_members(workspace_id: uuid.UUID,db: AsyncSession = Depends(get_db
     return members
 
 @router.patch("/{workspace_id}/members/{user_id}")
-async def update_member_role(workspace_id: uuid.UUID, user_id: uuid.UUID,data:MemberRoleUpdate, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
+async def update_member_role(workspace_id: uuid.UUID, user_id: uuid.UUID,data :MemberRoleUpdate, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
     service = WorkSpaceMemberService(db)
-    member = await service.update_member_role(workspace_id, user_id, data.role, current_user.id)
+    member = await service.update_member_role(workspace_id, user_id, data, current_user.id)
     return member
 
 

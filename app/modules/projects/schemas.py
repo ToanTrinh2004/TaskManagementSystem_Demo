@@ -13,7 +13,7 @@ class ProjectResponse(BaseModel):
     name : str
     description : str | None
     workspace_id : uuid.UUID
-    created_by : uuid.UUID
+    owner_id : uuid.UUID
 
     class Config:
         from_attributes = True

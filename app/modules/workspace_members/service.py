@@ -11,6 +11,7 @@ class WorkSpaceMemberService:
     def __init__(self, db: AsyncSession):
         self.repo = WorkSpaceMemberRepository(db)
         self.workspace_repo = WorkSpaceRepository(db)
+        self.db = db
 
     async def invite_member(self, workspace_id: uuid.UUID,data: MemberInvite, owner_id: uuid.UUID):
         workspace = await self.workspace_repo.get_workspace_by_id(workspace_id)
@@ -29,7 +30,10 @@ class WorkSpaceMemberService:
             user_id=data.user_id,
             role=WorkSpaceRole.MEMBER,
         )
-        return await self.repo.create_member(member)
+        await self.repo.create_member(member)
+        await self.db.commit()
+        await self.db.refresh(member)
+        return member
     
 
     async def list_members(self, workspace_id: uuid.UUID):

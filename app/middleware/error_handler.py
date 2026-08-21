@@ -18,11 +18,11 @@ def register_error_handler(app):
     async def handle_bad_request(request: Request, exc: BadRequestError):
         return JSONResponse(status_code=400, content={"message": exc.msg})
 
-    @app.exception_handler(Exception)
+    @app.exception_handler(ConflictError)
     async def handle_conflict(request : Request, exc: ConflictError):
         return JSONResponse(status_code= 409, content={"message": exc.msg})
     
-    @app.exception_handler(Exception)
+    @app.exception_handler(ForbiddenError)
     async def handle_forbiden(request : Request, exc: ForbiddenError):
         return JSONResponse(status_code= 403, content={"message": exc.msg})
     

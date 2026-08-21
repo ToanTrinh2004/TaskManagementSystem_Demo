@@ -53,3 +53,10 @@ class ProjectService:
         await self.db.commit()
         await self.db.refresh(result)
         return result
+    
+    async def get_project_by_id(self,project_id: uuid.UUID,  user_id:uuid.UUID):
+        project =  await self.repo.get_project_by_id(project_id)
+        if not project:
+            raise NotFoundError("Project not found")
+        return project
+        

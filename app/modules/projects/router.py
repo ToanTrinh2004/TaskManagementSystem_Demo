@@ -14,3 +14,9 @@ async def create_project(data: ProjectCreate,db: AsyncSession = Depends(get_db),
     service = ProjectService(db)
     new_workspace = await service.create_project(data, current_user.id)
     return new_workspace
+
+@router.get("/{project_id}", response_model=ProjectResponse)
+async def get_project(project_id: str, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
+    service = ProjectService(db)
+    project = await service.get_project_by_id(project_id,current_user.id)
+    return project

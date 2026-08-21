@@ -12,6 +12,7 @@ class WorkSpaceService:
     def __init__(self, db: AsyncSession):
         self.repo =WorkSpaceRepository(db)
         self.member_repo = WorkSpaceMemberRepository(db)
+        self.db = db
     
     async def create_workspace(self, data: WorkSpaceCreate, user_id: uuid.UUID):
         ## Insert workspace into database first 
@@ -20,7 +21,7 @@ class WorkSpaceService:
             name=data.name,
             description=data.description,
         )
-        result = await self.repo.create_workspace(workspace)
+        await self.repo.create_workspace(workspace)
 
 
 
@@ -32,9 +33,10 @@ class WorkSpaceService:
         await self.member_repo.create_member(owner)
 
         ## after creating workspace and owner member, commit the transaction 
-        await self.repo.commit()
+        await self.db.commit()
+        await self.db.refresh(workspace)
         
-        return result
+        return workspace
     
     async def get_workspace_by_owner(self, user_id: uuid.UUID):
         workspace = await self.repo.get_workspace_by_owner(user_id)

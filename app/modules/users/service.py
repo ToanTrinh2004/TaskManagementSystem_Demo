@@ -88,5 +88,4 @@ class UserService:
         "token_type": "bearer"}
     
     async def logout(self, user_id):
-        \
         await self.redis.delete(f"refresh_token:{user_id}")

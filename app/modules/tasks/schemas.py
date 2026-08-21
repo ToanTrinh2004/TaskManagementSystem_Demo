@@ -4,7 +4,7 @@ import uuid
 
 from pydantic import BaseModel
 
-from app.modules.tasks.model import TaskPriority
+from app.modules.tasks.model import TaskPriority, TaskStatus
 
 
 class TaskCreate(BaseModel):
@@ -14,3 +14,21 @@ class TaskCreate(BaseModel):
     assignee_id: Optional[uuid.UUID]= None
     due_date: Optional[datetime]= None
     estimated_finish_date: Optional[datetime] = None
+
+
+class TaskResponse(BaseModel):
+    id: uuid.UUID
+    title: str
+    description: Optional[str]
+    project_id: uuid.UUID
+    status: TaskStatus
+    priority: TaskPriority
+    assignee_id: Optional[uuid.UUID]
+    assigned_by: Optional[uuid.UUID]
+    created_by: uuid.UUID
+    due_date: Optional[datetime]
+    estimated_finish_date: Optional[datetime]
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = {"from_attributes": True}

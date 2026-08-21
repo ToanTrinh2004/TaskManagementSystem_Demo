@@ -1,6 +1,7 @@
 import uuid
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.modules.projects.model import Project
 from app.modules.workspaces.model import WorkSpace
 class WorkSpaceRepository:
     def __init__(self, db: AsyncSession):
@@ -20,6 +21,11 @@ class WorkSpaceRepository:
         query = select(WorkSpace).where(WorkSpace.id == id)
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
+    
+    async def list_projects_in_workspace(self,workspace_id: uuid.UUID):
+        query = select(Project).where(Project.workspace_id == workspace_id)
+        result = await self.db.execute(query)
+        return result.scalars().all()
     
     async def update_workspace(self, workspace: WorkSpace):
         await self.db.commit()

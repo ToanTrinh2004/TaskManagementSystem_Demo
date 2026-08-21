@@ -2,6 +2,7 @@ import uuid
 from fastapi import APIRouter, Depends
 from fastapi.security import HTTPBearer
 from app.db.session import get_db
+from app.modules.projects.schemas import ProjectResponse
 from app.modules.workspaces.schemas import WorkSpaceCreate, WorkSpaceResponse, WorkSpaceUpdate
 from app.modules.workspaces.service import WorkSpaceService
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,3 +37,9 @@ async def delete_workspace(id: uuid.UUID, db: AsyncSession = Depends(get_db), cu
     service = WorkSpaceService(db)
     result = await service.delete_workspace(id, current_user.id)
     return result
+
+@router.get("/{workspace_id}/projects",response_model=list[ProjectResponse])
+async def list_projects(workspace_id: uuid.UUID, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
+    service = WorkSpaceService(db)
+    projects = await service.list_projects_in_workspace(workspace_id, current_user.id)
+    return projects

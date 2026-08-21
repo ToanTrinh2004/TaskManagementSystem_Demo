@@ -1,7 +1,7 @@
 import uuid
 import redis.asyncio as redis
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.core.exceptions import ConflictError, NotFoundError, UnauthorizedError
+from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError, UnauthorizedError
 from app.modules.workspace_members.model import WorkSpaceMember, WorkSpaceRole
 from app.modules.workspace_members.repository import WorkSpaceMemberRepository
 from app.modules.workspaces.repository import WorkSpaceRepository
@@ -76,3 +76,14 @@ class WorkSpaceService:
         await self.member_repo.delete_all_by_workspace(workspace.id)
         await self.repo.delete(workspace)
         return {"message": "Deleted successfully"}
+    
+    async def list_projects_in_workspace(self,workspace_id: uuid.UUID, user_id: uuid.UUID):
+        workspace = await self.repo.get_workspace_by_id(workspace_id)
+        if not workspace:
+            raise NotFoundError("Workspace not found")
+        ## only memeber of workspace can see the projects in the workspace
+        is_member = await self.member_repo.get_member(workspace_id, user_id)
+        if not is_member:
+            raise ForbiddenError("You are not a member of this workspace")
+        projects = await self.repo.list_projects_in_workspace(workspace_id)
+        return projects

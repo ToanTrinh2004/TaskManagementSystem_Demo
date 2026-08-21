@@ -1,6 +1,9 @@
 from asyncio import Task
+import json
 from typing import Optional
 import uuid
+from sqlalchemy.ext.asyncio import AsyncSession
+import redis
 from app.core.exceptions import ForbiddenError, NotFoundError
 from app.modules.project_members.model import ProjectRole
 from app.modules.project_members.repository import ProjectMemberRepository
@@ -8,15 +11,17 @@ from app.modules.projects.repository import ProjectRepository
 from app.modules.tasks.model import TaskStatus
 from app.modules.tasks.repository import TaskRepository
 from app.modules.tasks.schemas import TaskCreate
+from app.core.config import settings
 
 
 class TaskService:
     def __init__(self, db: AsyncSession, redis_client=None):
         self.db = db
+        self.redis = redis
         self.repo = TaskRepository(db)
         self.project_repo = ProjectRepository(db)
         self.project_member_repo =ProjectMemberRepository(db)
-
+## helper func
     async def __check_exits_project(self, project_id: uuid.UUID):
         project = await self.project_repo.get_project_by_id(project_id)
         if not project:
@@ -29,7 +34,7 @@ class TaskService:
             raise ForbiddenError("You are not a member of this project")
         return member
 
-
+## main func
     async def create_task(self, project_id: uuid.UUID, data: TaskCreate, user_id: uuid.UUID):
         await self.__check_exits_project(project_id)
         member = await self.__check_is_project_member(project_id, user_id)
@@ -67,6 +72,24 @@ class TaskService:
 
         await self.__check_exits_project(project_id)
 
+        ## create cache key
+        cache_key = (
+            f"tasks_cache:"
+            f"{project_id}:"
+            f"{page}:"
+            f"{page_size}:"
+            f"{status}:"
+            f"{priority}:"
+            f"{assignee_id}:"
+            f"{sort_by}:"
+            f"{order}"
+        )
+        print(cache_key)
+        ## check in redis if cached then load from it no need query db
+        cached = await self.redis.get(cache_key)
+        if cached:
+            return json.loads(cached)
+
         items, total = await self.repo.list_tasks(
             project_id=project_id,
             page=page,
@@ -77,11 +100,34 @@ class TaskService:
             sort_by=sort_by,
             order=order,
         )
-
-        return {
+        ## if not cached , build a json to store in redis
+        result = {
             "total": total,
             "page": page,
             "page_size": page_size,
-            "items": items,
+            "items": [
+                {
+                    "id": str(t.id),
+                    "title": t.title,
+                    "description": t.description,
+                    "project_id": str(t.project_id),
+                    "status": t.status,
+                    "priority": t.priority,
+                    "assignee_id": str(t.assignee_id) if t.assignee_id else None,
+                    "assigned_by": str(t.assigned_by) if t.assigned_by else None,
+                    "created_by": str(t.created_by),
+                    "due_date": t.due_date.isoformat() if t.due_date else None,
+                    "estimated_finish_date": t.estimated_finish_date.isoformat() if t.estimated_finish_date else None,
+                    "created_at": t.created_at.isoformat(),
+                    "updated_at": t.updated_at.isoformat(),
+                }
+                for t in items
+            ],
         }
+
+        if self.redis:
+            await self.redis.set(cache_key, json.dumps(result), ex=settings.TASK_CACHE_TTL)
+
+        return result
+
 

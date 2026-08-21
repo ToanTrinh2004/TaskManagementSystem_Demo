@@ -77,7 +77,7 @@ class WorkSpaceService:
         await self.repo.delete(workspace)
         return {"message": "Deleted successfully"}
     
-    async def list_projects_in_workspace(self,workspace_id: uuid.UUID, user_id: uuid.UUID):
+    async def list_projects_in_workspace(self,workspace_id: uuid.UUID, user_id: uuid.UUID, page: int = 1,page_size: int = 20,):
         workspace = await self.repo.get_workspace_by_id(workspace_id)
         if not workspace:
             raise NotFoundError("Workspace not found")
@@ -85,5 +85,5 @@ class WorkSpaceService:
         is_member = await self.member_repo.get_member(workspace_id, user_id)
         if not is_member:
             raise ForbiddenError("You are not a member of this workspace")
-        projects = await self.repo.list_projects_in_workspace(workspace_id)
+        projects = await self.repo.list_projects_in_workspace(workspace_id,page,page_size)
         return projects

@@ -41,9 +41,9 @@ async def delete_workspace(id: uuid.UUID, db: AsyncSession = Depends(get_db), cu
     return result
 
 @router.get("/{workspace_id}/projects",response_model=list[ProjectResponse])
-async def list_projects(workspace_id: uuid.UUID, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
+async def list_projects(workspace_id: uuid.UUID, page: int = 1, page_size: int = 20, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
     service = WorkSpaceService(db)
-    projects = await service.list_projects_in_workspace(workspace_id, current_user.id)
+    projects = await service.list_projects_in_workspace(workspace_id, current_user.id,page,page_size)
     return projects
 
 @router.post("/{workspace_id}/members", response_model=MemberResponse)

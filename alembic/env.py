@@ -11,6 +11,9 @@ from app.core.config import settings
 from app.db.session import Base
 from app.modules.users.model import User
 from app.modules.workspaces.model import WorkSpace
+from app.modules.workspace_members.model import WorkSpaceMember
+from app.modules.projects.model import Project
+from app.modules.project_members.model import ProjectMember
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

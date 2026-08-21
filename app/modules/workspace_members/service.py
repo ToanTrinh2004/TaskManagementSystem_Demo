@@ -76,6 +76,6 @@ class WorkSpaceMemberService:
 
         member.role = data.role
         await self.repo.update_member(member)
-        return {"message": "Updated role successfully"}
+        return member
 
 

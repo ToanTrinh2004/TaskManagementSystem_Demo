@@ -48,9 +48,9 @@ class ProjectMemberService:
         return new_member
         
 
-    async def list_member(self,project_id : uuid.UUID):
+    async def list_member(self,project_id : uuid.UUID,page: int = 1, page_size: int = 20):
         await self.__check_exits_project(project_id)
-        return await self.repo.list_member(project_id)
+        return await self.repo.list_member(project_id,page,page_size)
     
     async def remove_member(self,project_id:uuid.UUID,member_id:uuid.UUID,owner_id:uuid.UUID):
         project = await self.__check_exits_project(project_id)

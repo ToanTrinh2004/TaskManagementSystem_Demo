@@ -47,9 +47,9 @@ async def invite_member(data: ProjectMemberInvite,project_id: uuid.UUID,db: Asyn
     return member
 
 @router.get("/{project_id}/members", response_model=List[ProjectMemberResponse])
-async def list_member(project_id: uuid.UUID, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
+async def list_member(project_id: uuid.UUID, page: int = 1, page_size: int = 20, db: AsyncSession = Depends(get_db), current_user=Depends(get_current_user)):
     service = ProjectMemberService(db)
-    members = await service.list_member(project_id)
+    members = await service.list_member(project_id,page,page_size)
     return members
 
 @router.delete("/{project_id}/members/{user_id}")

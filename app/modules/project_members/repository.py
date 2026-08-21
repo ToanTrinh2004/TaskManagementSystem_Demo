@@ -13,8 +13,8 @@ class ProjectMemberRepository:
         await self.db.flush()
         return member
     
-    async def list_member(self,project_id:uuid.UUID):
-        query = select(ProjectMember).where(ProjectMember.project_id == project_id)
+    async def list_member(self,project_id:uuid.UUID,page: int = 1,page_size: int = 20,):
+        query = select(ProjectMember).where(ProjectMember.project_id == project_id).offset((page - 1) * page_size).limit(page_size)
         result = await self.db.execute(query)
         return result.scalars().all()
     

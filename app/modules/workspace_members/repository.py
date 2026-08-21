@@ -29,3 +29,8 @@ class WorkSpaceMemberRepository:
     async def delete_member(self, member: WorkSpaceMember):
         await self.db.delete(member)
         await self.db.commit()
+
+    async def update_member(self, member: WorkSpaceMember):
+        await self.db.commit()
+        await self.db.refresh(member)
+        return member

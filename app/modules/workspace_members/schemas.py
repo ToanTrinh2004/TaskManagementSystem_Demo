@@ -16,3 +16,12 @@ class MemberResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class AssignableRole(str, PyEnum):
+    ## only allow manager and member roles passed in not allowing pass owner role
+    MANAGER = "manager"
+    MEMBER = "member"
+
+
+class MemberRoleUpdate(BaseModel):
+    role: AssignableRole

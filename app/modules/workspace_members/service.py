@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import NotFoundError, UnauthorizedError, BadRequestError
 from app.modules.workspace_members.repository import WorkSpaceMemberRepository
 from app.modules.workspace_members.model import WorkSpaceMember, WorkSpaceRole
-from app.modules.workspace_members.schemas import MemberInvite
+from app.modules.workspace_members.schemas import MemberInvite, MemberRoleUpdate
 from app.modules.workspaces.repository import WorkSpaceRepository
 
 
@@ -12,7 +12,7 @@ class WorkSpaceMemberService:
         self.repo = WorkSpaceMemberRepository(db)
         self.workspace_repo = WorkSpaceRepository(db)
 
-    async def invite_member(self, workspace_id: uuid.UUID, data: MemberInvite, requester_id: uuid.UUID):
+    async def invite_member(self, workspace_id: uuid.UUID,data: MemberInvite, requester_id: uuid.UUID):
         workspace = await self.workspace_repo.get_workspace_by_id(workspace_id)
         if not workspace:
             raise NotFoundError("Workspace not found")
@@ -50,3 +50,22 @@ class WorkSpaceMemberService:
 
         await self.repo.delete_member(member)
         return {"message": "Deleted successfully"}
+
+    async def update_member_role(self,workspace_id: uuid.UUID, user_id: uuid.UUID,data: MemberRoleUpdate, owner_id: uuid.UUID):
+        ## check workspace exist
+        workspace = await self.workspace_repo.get_workspace_by_id(workspace_id)
+        if not workspace:
+            raise NotFoundError("Workspace not found")
+        ## check if requester is owner of workspace
+        if workspace.owner_id != owner_id:
+            raise UnauthorizedError("You have no rights")
+        ## check if member exist
+        member = await self.repo.get_member(workspace_id,user_id)
+        if not member:
+            raise NotFoundError("Member not found")
+        ## change role of member
+        member.role = data.role
+        await self.repo.update_member(member)
+        return {"message": "Updated role successfully"}
+
+

@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.modules.workspace_members.model import WorkSpaceMember
 
@@ -24,6 +24,11 @@ class WorkSpaceMemberRepository:
         query = select(WorkSpaceMember).where(WorkSpaceMember.workspace_id == workspace_id)
         result = await self.db.execute(query)
         return result.scalars().all()
+    
+    async def delete_all_by_workspace(self, workspace_id):
+        query = delete(WorkSpaceMember).where(WorkSpaceMember.workspace_id == workspace_id)
+        await self.db.execute(query)
+        await self.db.commit()
     
     async def delete_member(self, member: WorkSpaceMember):
         await self.db.delete(member)

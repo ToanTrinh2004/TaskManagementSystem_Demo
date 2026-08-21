@@ -37,6 +37,9 @@ class WorkSpaceMemberService:
     
 
     async def list_members(self, workspace_id: uuid.UUID):
+        workspace = await self.workspace_repo.get_workspace_by_id(workspace_id)
+        if not workspace:
+            raise NotFoundError("Workspace not found")
         return await self.repo.list_members(workspace_id)
     
 

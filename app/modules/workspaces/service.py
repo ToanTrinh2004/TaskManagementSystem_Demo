@@ -73,5 +73,6 @@ class WorkSpaceService:
         if workspace.owner_id != user_id:
             raise UnauthorizedError("You have no rights")
 
+        await self.member_repo.delete_all_by_workspace(workspace.id)
         await self.repo.delete(workspace)
         return {"message": "Deleted successfully"}

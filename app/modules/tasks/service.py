@@ -3,7 +3,6 @@ import json
 from typing import Optional
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
-import redis
 from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.modules.project_members.model import ProjectRole
 from app.modules.project_members.repository import ProjectMemberRepository
@@ -17,7 +16,7 @@ from app.core.config import settings
 class TaskService:
     def __init__(self, db: AsyncSession, redis_client=None):
         self.db = db
-        self.redis = redis
+        self.redis = redis_client
         self.repo = TaskRepository(db)
         self.project_repo = ProjectRepository(db)
         self.project_member_repo =ProjectMemberRepository(db)
@@ -168,7 +167,7 @@ class TaskService:
 
         updated = await self.repo.update_task(task)
 
-        self.__clear_task_cache(task.project_id)
+        await self.__clear_task_cache(task.project_id)
         
 
         return updated
@@ -185,4 +184,12 @@ class TaskService:
         await self.repo.update_task(task)
         await self.__clear_task_cache(task.project_id)
         return task
+    
+    async def delete_task(self, task_id: uuid.UUID, user_id: uuid.UUID):
+        task = await self.__check_exits_task(task_id)
+        await self.__check_is_project_member(task.project_id, user_id)
+        project_id = task.project_id
+        await self.repo.delete_task(task)
+        await self.__clear_task_cache(project_id)
+        return {"message": "Deleted successfully"}
 

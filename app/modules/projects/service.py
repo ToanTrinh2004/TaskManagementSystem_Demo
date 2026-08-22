@@ -100,6 +100,13 @@ class ProjectService:
     async def delete_project(self,project_id: uuid.UUID, user_id: uuid.UUID):
         project =  await self.__check_exits_project(project_id)
         await self.repo.delete_project(project)
+        await publish_event(
+            self.redis,
+            event_name=ActivityAction.PROJECT_DELETED,
+            payload={
+                "user_id": str(user_id),
+                "project_id": str(project_id),   
+                "target_id": str(project_id),})
         return{"message": "Deleted successfully"}
         
         

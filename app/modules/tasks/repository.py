@@ -1,4 +1,4 @@
-from asyncio import Task
+from app.modules.tasks.model import Task
 from typing import Optional
 import uuid
 from sqlalchemy import func, select
@@ -63,7 +63,7 @@ class TaskRepository:
 
         # Count total 
         count_query = select(func.count()).select_from(Task).where(Task.project_id ==project_id)
-        
+
         if status:
             count_query = count_query.where(Task.status == status)
 

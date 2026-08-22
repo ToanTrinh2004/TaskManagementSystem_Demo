@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.dependencies import get_current_user
 from app.db.redis_client import get_redis
 from app.db.session import get_db
+from app.modules.log_activity.schemas import ActivityLogResponse
+from app.modules.log_activity.service import ActivityLogService
 from app.modules.project_members.schemas import ProjectMemberInvite, ProjectMemberResponse
 from app.modules.project_members.service import ProjectMemberService
 from app.modules.projects.schemas import ProjectCreate, ProjectResponse, ProjectUpdate
@@ -59,3 +61,13 @@ async def remove_member(project_id: uuid.UUID , user_id: uuid.UUID , db: AsyncSe
     service = ProjectMemberService(db)
     result = await service.remove_member(project_id, user_id, current_user.id)
     return result
+
+
+@router.get("/{project_id}/activities", response_model=List[ActivityLogResponse])
+async def list_project_logs(
+    project_id: uuid.UUID,
+    db: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    service = ActivityLogService(db)
+    return await service.list_project_logs(project_id)

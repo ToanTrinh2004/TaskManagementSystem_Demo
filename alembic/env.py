@@ -15,7 +15,7 @@ from app.modules.workspace_members.model import WorkSpaceMember
 from app.modules.projects.model import Project
 from app.modules.project_members.model import ProjectMember
 from app.modules.log_activity.model import ActivityLog
-
+from app.modules.tasks.model import Task
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config

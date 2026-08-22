@@ -53,7 +53,7 @@ class ProjectService:
         )
         result = await self.repo.create_project(project)
         project_id = result.id
-        print(user_id)
+        
         leader = ProjectMember(
             project_id=result.id,
             user_id=user_id,
@@ -69,7 +69,7 @@ class ProjectService:
             event_name=ActivityAction.PROJECT_CREATED,
             payload={
                 "user_id": str(user_id),
-                "project_id": str(project_id),   # dùng biến đã lưu, không đọc lại result.id
+                "project_id": str(project_id),   
                 "target_id": str(project_id),
     },
 )
@@ -88,6 +88,13 @@ class ProjectService:
         if data.description is not None:
             project.description = data.description
         await self.repo.update_project(project)
+        await publish_event(
+            self.redis,
+            event_name=ActivityAction.PROJECT_UPDATED,
+            payload={
+                "user_id": str(user_id),
+                "project_id": str(project_id),   
+                "target_id": str(project_id),})
         return  project
     
     async def delete_project(self,project_id: uuid.UUID, user_id: uuid.UUID):

@@ -80,7 +80,7 @@ class UserService:
        
         await self.redis.set(f"refresh_token:{user_id}", new_refresh_token, ex=60*60*24*int(settings.REFRESH_TOKEN_EXPIRE))
        
-        await self.redis.set(f"blacklist:{access_token}", "1", ex=60*int(settings.ACCESS_TOKEN_EXPIRE))
+        
        
         return {
         "access_token": new_access_token,

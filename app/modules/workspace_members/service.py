@@ -11,6 +11,7 @@ class WorkSpaceMemberService:
     def __init__(self, db: AsyncSession):
         self.repo = WorkSpaceMemberRepository(db)
         self.workspace_repo = WorkSpaceRepository(db)
+        self.db = db
 
     async def invite_member(self, workspace_id: uuid.UUID,data: MemberInvite, owner_id: uuid.UUID):
         workspace = await self.workspace_repo.get_workspace_by_id(workspace_id)
@@ -68,8 +69,10 @@ class WorkSpaceMemberService:
 
         if workspace.owner_id != owner_id:
             raise ForbiddenError("You have no rights")
+        print(user_id)
 
         member = await self.repo.get_member(workspace_id,user_id)
+        print(member)
         if not member:
             raise NotFoundError("Member not found")
         member.role = WorkSpaceRole(data.role)

@@ -13,6 +13,8 @@ class WorkSpaceMemberRepository:
         return member
 
     async def get_member(self, workspace_id: uuid.UUID, user_id: uuid.UUID):
+        print(workspace_id)
+        print(user_id)
         query = select(WorkSpaceMember).where(
             WorkSpaceMember.workspace_id == workspace_id,
             WorkSpaceMember.user_id == user_id,
@@ -35,7 +37,7 @@ class WorkSpaceMemberRepository:
         await self.db.commit()
 
     async def update_member(self, member: WorkSpaceMember):
-        await self.db.add(member)
+        self.db.add(member)
         await self.db.commit()
         await self.db.refresh(member)
         return member

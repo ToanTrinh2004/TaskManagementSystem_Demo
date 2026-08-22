@@ -1,4 +1,4 @@
-from asyncio import Task
+
 import json
 from typing import Optional
 import uuid
@@ -7,7 +7,7 @@ from app.core.exceptions import BadRequestError, ForbiddenError, NotFoundError
 from app.modules.project_members.model import ProjectRole
 from app.modules.project_members.repository import ProjectMemberRepository
 from app.modules.projects.repository import ProjectRepository
-from app.modules.tasks.model import TaskStatus
+from app.modules.tasks.model import Task, TaskStatus
 from app.modules.tasks.repository import TaskRepository
 from app.modules.tasks.schemas import TaskCreate, TaskStatusUpdate, TaskUpdate
 from app.core.config import settings
